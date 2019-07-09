@@ -66,13 +66,20 @@ public class MazeFrame extends JFrame {
             for( int i=0; i<data.getMazeHeight(); ++i) {
                 for( int j=0; j<data.getMazeWidth(); ++j) {
 
-                    if( data.getMaze( i, j) == MazeData.WALL)
-                        VisibleHelper.setColor( g2d, VisibleHelper.Purple);
-                    else
-                        VisibleHelper.setColor( g2d, VisibleHelper.White);
+                    if( data.fog[i][j])
+                        VisibleHelper.setColor( g2d, VisibleHelper.Grey);
+                    else {
+                        if( data.getMaze( i, j) == MazeData.WALL)
+                            VisibleHelper.setColor( g2d, VisibleHelper.Brown);
+                        else
+                            VisibleHelper.setColor( g2d, VisibleHelper.White);
 
-                    if( data.path[i][j] == true)
-                        VisibleHelper.setColor( g2d, VisibleHelper.LightBlue);
+                        if( data.path[i][j])
+                            VisibleHelper.setColor( g2d, VisibleHelper.LightBlue);
+                    }
+
+/*                    if( data.path[i][j] == true)
+                        VisibleHelper.setColor( g2d, VisibleHelper.LightBlue);*/
 
                     VisibleHelper.fillRectangle( g2d, j*w, i*h, w, h);
                 }

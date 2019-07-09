@@ -1,28 +1,29 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Stack;
 
 public class Controler {
 
-    private static int blockSide = 6;
-    private static int holdOn = 10;
-    private static final int nextStep[][] = { { 0, -1}, { 1, 0}, { 0, 1}, { -1, 0}};
+    private static int blockPixels = 6; /// number of pixels in every unit block
+    private static int holdOn = 5; /// time of pause(ms) in every repaint
+    private static final int nextStep[][] = { { 0, 1}, { 1, 0}, { 0, -1}, { -1, 0}};
 
     private MazeData data;
     private MazeFrame frame;
 
-    public Controler( String mazeInputFile) {
+    public Controler( int mazeHeight, int mazeWidth) {
 
         ///初始化数据
-        data = new MazeData( mazeInputFile);
-        int sceneWidth = data.getMazeWidth() * blockSide;
-        int sceneHeight = data.getMazeHeight() * blockSide;
+        data = new MazeData( mazeHeight, mazeWidth);
+        int sceneHeight = data.getMazeHeight() * blockPixels;
+        int sceneWidth = data.getMazeWidth() * blockPixels;
 
         ///初始化视图
         EventQueue.invokeLater( ()->{
             /// Event Queue ( import java.awt.*) for safe thread dispatch (事件分发线程-Java官方建议创建窗口时使用)
 
-            frame = new MazeFrame("Maze Solution", sceneWidth, sceneHeight);
-            //frame.addKeyListener( new AlgoKeyListener());
+            frame = new MazeFrame("Random Maze", sceneWidth, sceneHeight);
+            frame.addKeyListener( new AlgoKeyListener());
             //frame.addMouseListener( new AlgoMouseListener());
 
             new Thread(()->{
@@ -33,39 +34,72 @@ public class Controler {
 
     private void run() {
 
-        setData( -1, -1, false);
-        if( !go( data.getMazeEntryX(), data.getMazeEntryY()))
-            System.out.println("No Solution!");
+        setRoadData( -1, -1);
 
-        setData( -1, -1, false);
+        RandomQueue<Coordinate> q = new RandomQueue<>();
+        Coordinate start = new Coordinate( data.getMazeEntryX(), data.getMazeEntryY() + 1);
+        q.add( start);
+        data.visited[ start.getX()][ start.getY()] = true;
+        data.removeFog( start.getX(), start.getY());
+
+        while( !q.empty()) {
+
+            Coordinate coor = q.remove();
+            for( int i=0; i<4; ++i) {
+
+                int newX = coor.getX() + 2*nextStep[i][0];
+                int newY = coor.getY() + 2*nextStep[i][1];
+
+                if( data.inArea( newX, newY) && !data.visited[ newX][ newY]) {
+                    q.add( new Coordinate( newX, newY));
+                    data.visited[ newX][ newY] = true;
+                    data.removeFog( newX, newY);
+                    setRoadData( coor.getX() + nextStep[i][0], coor.getY() + nextStep[i][1]);
+                }
+            }
+        }
+        setRoadData( -1, -1);
+    }
+
+    private void setRoadData( int x, int y) {
+
+        if( data.inArea( x, y))
+            data.setMazeRoad( x, y);
+
+        frame.render( data);
+        VisibleHelper.pause( holdOn);
     }
 
     private boolean go( int x, int y) {
 
         if( !data.inArea( x, y))
-            throw new IllegalArgumentException( "Index Out of Maze Range...");
+            throw new IllegalArgumentException("Index is out of Maze border...");
 
-        data.visited[x][y] = true;
-        setData( x, y, true);
         if( x == data.getMazeExitX() && y == data.getMazeExitY())
             return true;
+
+        data.visited[x][y] = true;
+        setPathData( x, y, true);
 
         for( int i=0; i<4; ++i) {
 
             int newX = x + nextStep[i][0];
             int newY = y + nextStep[i][1];
+
             if( data.inArea( newX, newY)
-                    && data.getMaze( newX, newY) == data.ROAD
-                    && !data.visited[newX][newY])
+                && data.getMaze( newX, newY) == MazeData.ROAD
+                && !data.visited[ newX][ newY])
+            {
                 if( go( newX, newY))
                     return true;
+            }
         }
-        setData( x, y, false);
 
+        setPathData( x, y, false);
         return false;
     }
 
-    private void setData( int x, int y, boolean isPath) {
+    private void setPathData( int x, int y, boolean isPath) {
 
         if( data.inArea( x, y))
             data.path[x][y] = isPath;
@@ -74,15 +108,24 @@ public class Controler {
         VisibleHelper.pause( holdOn);
     }
 
-/*    private class AlgoKeyListener extends KeyAdapter {
+    private class AlgoKeyListener extends KeyAdapter {
 
         @Override
         public void keyReleased(KeyEvent event) {
 
-            if( event.getKeyChar() == ' ')
-                isAnimated = !isAnimated;
+            if( event.getKeyChar() == ' ') {
+                for( int i=0; i<data.getMazeHeight(); ++i) {
+                    for( int j=0; j<data.getMazeWidth(); ++j) {
+                        data.visited[i][j] = false;
+                    }
+                }
+
+                new Thread( ()->{
+                    go( data.getMazeEntryX(), data.getMazeEntryY());
+                }).start();
+            }
         }
-    }*/
+    }
 
 /*    private class AlgoMouseListener extends MouseAdapter {
 
@@ -102,7 +145,7 @@ public class Controler {
 
     public static void main( String[] args) {
 
-        String inputMazeFile = "maze_101_101.txt";
-        Controler ctrl = new Controler( inputMazeFile);
+        int mazeHeight = 101, mazeWidth = 101;
+        Controler ctrl = new Controler( mazeHeight, mazeWidth);
     }
 }
