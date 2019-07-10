@@ -6,8 +6,8 @@ public class MazeFrame extends JFrame {
     private int canvasWidth;
     private int canvasHeight;
 
-    public int getCanvasWidth() { return canvasWidth;};
-    public int getCanvasHeight() { return canvasHeight;};
+    public int getCanvasWidth() { return canvasWidth;}
+    public int getCanvasHeight() { return canvasHeight;}
 
     /// change to corresponding data
     private MazeData data;

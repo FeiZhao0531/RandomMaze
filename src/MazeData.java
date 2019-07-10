@@ -19,6 +19,7 @@ public class MazeData {
 
 
     public MazeData( int mazeHeight, int mazeWidth) {
+        /// used for generating a random maze and solving it, by the way saving the maze in .txt file
 
         if( mazeHeight % 2 == 0 || mazeWidth % 2 == 0)
             throw new IllegalArgumentException("Invalid maze size...");
@@ -52,6 +53,59 @@ public class MazeData {
         mazeMatrix[ exitX][ exitY] = ROAD;
         path[ entryX][ entryY] = true;
         path[ exitX][ exitY] = true;
+    }
+
+    public MazeData( String inputFileName) {
+        /// used for solving a known maze which saved in .txt file
+
+        if( inputFileName == null)
+            throw new IllegalArgumentException("File can not be empty!");
+
+        Scanner scanner = null;
+        try{
+            File file = new File( inputFileName);
+            if( !file.exists())
+                throw new IllegalArgumentException( "File" + inputFileName + " doesn't exist");
+
+            FileInputStream fIS = new FileInputStream( file);
+            scanner = new Scanner( new BufferedInputStream( fIS), "UTF-8");
+
+            String whLine = scanner.nextLine();
+            String[] wh = whLine.trim().split("\\s+");
+
+            mazeHeight = Integer.parseInt( wh[0]);
+            mazeWidth = Integer.parseInt( wh[1]);
+
+            mazeMatrix = new char[ mazeHeight][ mazeWidth];
+            visited = new boolean[ mazeHeight][ mazeWidth];
+            path = new boolean[ mazeHeight][ mazeWidth];
+            fog = new boolean[ mazeHeight][ mazeWidth];
+            for( int i=0; i<mazeHeight; ++i) {
+
+                String line = scanner.nextLine();
+                if( line.length() != mazeWidth)
+                    throw new IllegalArgumentException(" Maze file " + inputFileName + "is invalid..");
+
+                for( int j=0; j<mazeWidth; ++j) {
+                    mazeMatrix[i][j] = line.charAt(j);
+                    visited[i][j] = false;
+                    path[i][j] = false;
+                    fog[i][j] = false;
+                }
+            }
+        }
+        catch ( IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            if ( scanner != null)
+                scanner.close();
+        }
+
+        entryX = 1;
+        entryY = 0;
+        exitX = mazeHeight - 2;
+        exitY = mazeWidth - 1;
     }
 
     public int getMazeWidth() { return mazeWidth;}

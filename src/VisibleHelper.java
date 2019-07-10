@@ -5,7 +5,7 @@ import java.awt.geom.Rectangle2D;
 
 public class VisibleHelper {
 
-    private VisibleHelper(){};
+    private VisibleHelper(){}
 
     public static final Color Red = new Color(0xF44336);
     public static final Color Pink = new Color(0xE91E63);
@@ -30,8 +30,8 @@ public class VisibleHelper {
     public static final Color White = new Color(0xFFFFFF);
 
     public static void setStrokeWidth( Graphics2D g2d, int w) {
-        int strokeWidth = w;
-        g2d.setStroke( new BasicStroke( strokeWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)); /// 端点和折现拐点圆形
+
+        g2d.setStroke( new BasicStroke( w, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)); /// 端点和折现拐点圆形
     }
 
     public static void setColor( Graphics2D g2d, Color color) {
