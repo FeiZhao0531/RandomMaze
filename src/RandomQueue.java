@@ -19,7 +19,7 @@ public class RandomQueue<E> {
         if( queue.size() == 0)
             throw new IllegalArgumentException("Empty Random-Queue");
 
-        if( Math.random() > 0.5)
+        if( Math.random() > 0.25)
             return queue.removeLast();
         else
             return queue.removeFirst();

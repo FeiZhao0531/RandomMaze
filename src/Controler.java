@@ -7,8 +7,8 @@ import java.util.Date;
 public class Controler {
 
     private static int blockPixels = 6; /// number of pixels in every unit block
-    private static int holdOn = 5; /// time of pause(ms) in every repaint
-    private static final int nextStep[][] = { { 1, 0}, { 0, 1}, { -1, 0}, { 0, -1}};
+    private static int holdOn = 6; /// time of pause(ms) in every repaint
+    private static final int nextStep[][] = { { 0, 1}, { 1, 0},  { -1, 0}, { 0, -1}};
 
     private MazeData data;
     private MazeFrame frame;
@@ -210,7 +210,7 @@ public class Controler {
 
     public static void main( String[] args) {
 
-        int mazeHeight = 101, mazeWidth = 201;
+        int mazeHeight = 101, mazeWidth = 101;
         Controler ctrl = new Controler( mazeHeight, mazeWidth);
 
 /*        String dateStr = "2019-07-10_15-59-50";
