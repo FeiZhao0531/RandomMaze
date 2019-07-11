@@ -4,8 +4,8 @@ An exercise to generate a random maze and saves in txt file.
 Maze file naming: *generationStlye*\_*mazeHeight*\_*mazeWidth*\_*generatedDateAndTime*.txt
 
 Two types of maze *generation style*:     
-1.complexMaze    Controler( mazeHeight, mazeWidth, true)     
-2.simpleMaze     Controler( mazeHeight, mazeWidth, false)    
+1.complexMaze:    Controler( mazeHeight, mazeWidth, true)     
+2.simpleMaze:   Controler( mazeHeight, mazeWidth, false)    
 
 ## How to run
 Run the Controler.main() in RandomMaze/src/Controler.java 
