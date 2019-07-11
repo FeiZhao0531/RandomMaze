@@ -7,13 +7,13 @@ import java.util.Date;
 public class Controler {
 
     private static int blockPixels = 6; /// number of pixels in every unit block
-    private static int holdOn = 6; /// time of pause(ms) in every repaint
-    private static final int nextStep[][] = { { 0, 1}, { 1, 0},  { -1, 0}, { 0, -1}};
+    private static int holdOn = 5; /// time of pause(ms) in every repaint
+    private static final int nextStep[][] = { { 1, 0}, { 0, 1}, { -1, 0}, { 0, -1}};
 
     private MazeData data;
     private MazeFrame frame;
 
-    public Controler( int mazeHeight, int mazeWidth) {
+    public Controler( int mazeHeight, int mazeWidth, boolean isComplexMaze) {
         /// used for generating a random maze and solving it, by the way saving the maze in .txt file
 
         ///初始化数据
@@ -30,7 +30,7 @@ public class Controler {
             //frame.addMouseListener( new AlgoMouseListener());
 
             new Thread(()->{
-                run();
+                run( isComplexMaze);
             }).start();
         });
     }
@@ -57,7 +57,7 @@ public class Controler {
         });
     }
 
-    private void run() {
+    private void run( boolean isComplexMaze) {
 
         setRoadData( -1, -1);
 
@@ -67,30 +67,66 @@ public class Controler {
         data.visited[ start.getX()][ start.getY()] = true;
         data.removeFog( start.getX(), start.getY());
 
-        while( !q.empty()) {
+        if( isComplexMaze == true) {
 
-            Coordinate coor = q.remove();
-            for( int i=0; i<4; ++i) {
+            System.out.println("Complex maze generator...");
+            while( !q.empty()) {
 
-                int newX = coor.getX() + 2*nextStep[i][0];
-                int newY = coor.getY() + 2*nextStep[i][1];
+                Coordinate coor = q.remove();
 
-                if( data.inArea( newX, newY) && !data.visited[ newX][ newY]) {
-                    q.add( new Coordinate( newX, newY));
-                    data.visited[ newX][ newY] = true;
-                    data.removeFog( newX, newY);
-                    setRoadData( coor.getX() + nextStep[i][0], coor.getY() + nextStep[i][1]);
+                int randomNextStepIndex[] = { 0, 1, 2, 3};
+                for( int j=3; j>=1; --j) {
+                    int tmpIndex = (int)(Math.random() * (j+1));
+                    int tmpValue = randomNextStepIndex[ tmpIndex];
+                    randomNextStepIndex[ tmpIndex] = randomNextStepIndex[j];
+                    randomNextStepIndex[j] = tmpValue;
+                }
+
+                int i = 0;
+                for( ; i<4; ++i) {
+
+                    int newX = coor.getX() + 2*nextStep[randomNextStepIndex[i]][0];
+                    int newY = coor.getY() + 2*nextStep[randomNextStepIndex[i]][1];
+
+                    if( data.inArea( newX, newY) && !data.visited[ newX][ newY]) {
+                        q.add( new Coordinate( newX, newY));
+                        data.visited[ newX][ newY] = true;
+                        data.removeFog( newX, newY);
+                        setRoadData( coor.getX() + nextStep[randomNextStepIndex[i]][0],
+                                coor.getY() + nextStep[randomNextStepIndex[i]][1]);
+                        break;
+                    }
+                }
+                if( i < 4)
+                    q.add( new Coordinate( coor.getX(), coor.getY()));
+            }
+        }
+        else {
+            System.out.println("Simple maze generator...");
+
+            while( !q.empty()) {
+
+                Coordinate coor = q.remove();
+
+                for( int i=0; i<4; ++i) {
+
+                    int newX = coor.getX() + 2*nextStep[i][0];
+                    int newY = coor.getY() + 2*nextStep[i][1];
+
+                    if( data.inArea( newX, newY) && !data.visited[ newX][ newY]) {
+                        q.add( new Coordinate( newX, newY));
+                        data.visited[ newX][ newY] = true;
+                        data.removeFog( newX, newY);
+                        setRoadData( coor.getX() + nextStep[i][0],
+                                coor.getY() + nextStep[i][1]);
+                    }
                 }
             }
         }
+
         setRoadData( -1, -1);
 
-        Date date = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        String dateStr = simpleDateFormat.format( date);
-        String fileName = "maze_" + data.getMazeHeight() + "_" + data.getMazeWidth() + "_" + dateStr + ".txt";
-        writeFile( fileName);
-
+        writeFile( fileName( isComplexMaze));
     }
 
     private void setRoadData( int x, int y) {
@@ -147,6 +183,21 @@ public class Controler {
 
         frame.render( data);
         VisibleHelper.pause( holdOn);
+    }
+
+    private String fileName( boolean isComplexMaze) {
+
+        Date date = new Date();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        String dateStr = simpleDateFormat.format( date);
+        String fileName = data.getMazeHeight() + "_" + data.getMazeWidth() + "_" + dateStr + ".txt";
+        if( isComplexMaze)
+            fileName = "ComplexMaze_" + fileName;
+        else {
+            fileName = "SimpleMaze_" + fileName;
+        }
+
+        return fileName;
     }
 
     private void writeFile( String fileName) {
@@ -211,10 +262,10 @@ public class Controler {
     public static void main( String[] args) {
 
         int mazeHeight = 101, mazeWidth = 101;
-        Controler ctrl = new Controler( mazeHeight, mazeWidth);
+        Controler ctrl = new Controler( mazeHeight, mazeWidth, true);
 
 /*        String dateStr = "2019-07-10_15-59-50";
-        String fileName = "maze_" + mazeHeight + "_" + mazeWidth + "_" + dateStr + ".txt";
+        String fileName = "ComplexMaze_" + mazeHeight + "_" + mazeWidth + "_" + dateStr + ".txt";
         Controler ctrl = new Controler( fileName);*/
     }
 }
