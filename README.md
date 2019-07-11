@@ -1,8 +1,9 @@
 # Random Maze
-An exercise to generate a random maze and saves in txt file
-File naming: *generationStlye*\_*mazeHeight*\_*mazeWidth*\_*generatedDateAndTime*.txt
+An exercise to generate a random maze and saves in txt file.
 
-Two types of maze generation style:     
+Maze file naming: *generationStlye*\_*mazeHeight*\_*mazeWidth*\_*generatedDateAndTime*.txt
+
+Two types of maze *generation style*:     
 1.complexMaze    Controler( mazeHeight, mazeWidth, true)     
 2.simpleMaze     Controler( mazeHeight, mazeWidth, false)    
 
